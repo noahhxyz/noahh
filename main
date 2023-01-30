@@ -1,0 +1,123 @@
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+local Window = Library.CreateLib("noahhs rblx hub", "Synapse")
+-- DaHood
+if game.PlaceId == 2788229376 then
+    local DaHood = Window:NewTab("DaHood")
+    local DaSection = DaHood:NewSection("Da Hood")
+
+
+    DaSection:NewButton("Headless", "noahhxyz#0001 *move to activate*", function()
+        --HEADLESS SCRIPT
+        local lp = game:GetService "Players".LocalPlayer
+        if lp.Character:FindFirstChild "Head" then
+            local char = lp.Character
+            char.Archivable = true
+            local new = char:Clone()
+            new.Parent = workspace
+            lp.Character = new
+            wait(2)
+            local oldhum = char:FindFirstChildWhichIsA "Humanoid"
+            local newhum = oldhum:Clone()
+            newhum.Parent = char
+            newhum.RequiresNeck = false
+            oldhum.Parent = nil
+            wait(2)
+            lp.Character = char
+            new:Destroy()
+            wait(1)
+            newhum:GetPropertyChangedSignal("Health"):Connect(
+                function()
+                    if newhum.Health <= 0 then
+                        oldhum.Parent = lp.Character
+                        wait(1)
+                        oldhum:Destroy()
+                    end
+                end)
+            workspace.CurrentCamera.CameraSubject = char
+            if char:FindFirstChild "Animate" then
+                char.Animate.Disabled = true
+                wait(.1)
+                char.Animate.Disabled = false
+            end
+            lp.Character:FindFirstChild "Head":Destroy()
+        end
+    end)
+
+    DaSection:NewButton("Aimlock", "noahhxyz#0001 *E to activate*", function()
+        local Aiming = loadstring(game:HttpGet("https://pastebin.com/raw/YmUFTisy", true))()
+                            Aiming.TeamCheck(false)
+                             
+                            
+                            local Workspace = game:GetService("Workspace")
+                            local Players = game:GetService("Players")
+                            local RunService = game:GetService("RunService")
+                            local UserInputService = game:GetService("UserInputService")
+                            
+                            
+                            local LocalPlayer = Players.LocalPlayer
+                            local Mouse = LocalPlayer:GetMouse()
+                            local CurrentCamera = Workspace.CurrentCamera
+                            
+                            local DaHoodSettings = {
+                                SilentAim = true,
+                                AimLock = false,
+                                Prediction = 0.11923,
+                                AimLockKeybind = Enum.KeyCode.E
+                            }
+                            getgenv().DaHoodSettings = DaHoodSettings
+                            
+                            
+                            function Aiming.Check()
+                            -------------
+                                if not (Aiming.Enabled == true and Aiming.Selected ~= LocalPlayer and Aiming.SelectedPart ~= nil) then
+                                    return false
+                                end
+                            
+                                -- // Check if downed
+                                local Character = Aiming.Character(Aiming.Selected)
+                                local KOd = Character:WaitForChild("BodyEffects")["K.O"].Value
+                                local Grabbed = Character:FindFirstChild("GRABBING_CONSTRAINT") ~= nil
+                            
+                                -- // Check B
+                                if (KOd or Grabbed) then
+                                    return false
+                                end
+                            
+                                -- //
+                                return true
+                            end
+                            
+                            -- // Hook
+                            local __index
+                            __index = hookmetamethod(game, "__index", function(t, k)
+                                -- // Check if it trying to get our mouse's hit or target and see if we can use it
+                                if (t:IsA("Mouse") and (k == "Hit" or k == "Target") and Aiming.Check()) then
+                                    local SelectedPart = Aiming.SelectedPart
+                            
+                                    -- // Hit/Target
+                                    if (DaHoodSettings.SilentAim and (k == "Hit" or k == "Target")) then
+                                        -- // Hit to account prediction
+                                        local Hit = SelectedPart.CFrame + (SelectedPart.Velocity * DaHoodSettings.Prediction)
+                            
+                                        -- // Return modded val
+                                        return (k == "Hit" and Hit or SelectedPart)
+                                    end
+                                end
+                            
+                                -- // Return
+                                return __index(t, k)
+                            end)
+                            
+                            -- // Aimlock
+                            RunService:BindToRenderStep("AimLock", 0, function()
+                                if (DaHoodSettings.AimLock and Aiming.Check() and UserInputService:IsKeyDown(DaHoodSettings.AimLockKeybind)) then
+                                    -- // Vars
+                                    local SelectedPart = Aiming.SelectedPart
+                            
+                                    -- // Hit to account prediction
+                                    local Hit = SelectedPart.CFrame + (SelectedPart.Velocity * DaHoodSettings.Prediction)
+                            
+                                    CurrentCamera.CFrame = CFrame.lookAt(CurrentCamera.CFrame.Position, Hit.Position)
+                                end
+                                end)
+                                
